@@ -14,78 +14,66 @@
 ```
 const qiniuUploader = require('./qiniuUploader');
 
-function updateQNConfig(token) {
-    var options = {
-      region: 'ECN', // 华东区
-      domain: 'your bucker domain name',
-      uploadURL:'https://upload.qiniup.com/',
-      uploadToken:token,
-    };
-    qiniuUploader.updateConfigWithOptions(options);
-}
-
-function uploadFile1(filePath) {
-  if (qiniuUploader.needUpdateToken()) {    
-    return getQiniuUploaadToken(filePath).then(res => {
-      updateQNConfig(res.token);      
-      let imageUrl = pathOfAbsoluteUrl(res.imageUrl);
-      qiniuUploader.upload(filePath, resolve, reject, {key:imageUrl})
+function uploadFile0(filePath) {
+  if (qiniuUploader.needUpdateToken()) {
+    return new Promise((resolve, reject) => { 
+      getToken(token => {
+        var options = {
+          region: 'ECN',
+          domain: '',
+          uploadURL:'https://upload.qiniup.com/',
+          uploadToken:token,      
+        };
+        qiniuUploader.updateConfigWithOptions(options);
+        getFilePath((path) => {
+          qiniuUploader.upload(filePath, resolve, reject, {key:path})
+        })
+      })
     })
   } else {    
-    return getQiniuUploadFileName(filePath).then(res => {            
-      let imageUrl = pathOfAbsoluteUrl(res.imageUrl);
-      qiniuUploader.upload(filePath, resolve, reject, {key:imageUrl})
+    return new Promise((resolve, reject) => {
+      getFilePath((path) => {
+        qiniuUploader.upload(filePath, resolve, reject, {key:path})
+      })
     })
   }
 }
 ```
 
-### 方式2
-```
-const qiniuUploader = require('./qiniuUploader');
+#### 方式2
 
-function updateQNConfig() {
+```
+function uploadFile2(filePath) {
     var options = {
-      region: 'ECN', // 华东区
-      domain: 'your bucker domain name',
-      uploadURL:'https://upload.qiniup.com/',
-      qiniuUploadTokenURL:'token generator service url',
+      region: 'ECN', 
+      domain: '',
+      uploadURL:'https://upload.qiniup.com/',          
+      uptokenURL:''
+    };
+    qiniuUploader.updateConfigWithOptions(options);    
+    return new Promise((resolve, reject) => {
+      getFilePath((path) => {
+        qiniuUploader.upload(filePath, resolve, reject, {key:path})
+      })
+    })
+}
+```
+
+#### 方式2
+```
+function uploadFile3(filePath) { 
+  var options = {
+      region: 'ECN', 
+      domain: '',
+      uploadURL:'https://upload.qiniup.com/',          
+      uptokenFunc:getToken
     };
     qiniuUploader.updateConfigWithOptions(options);
+    return new Promise((resolve, reject) => {
+      getFilePath((path) => {
+        qiniuUploader.upload(filePath, resolve, reject, {key:path})
+      })
+    })
 }
 
-function uploadFile1(filePath) {
-	 updateQNConfig();      
-	 return getQiniuUploadFileName(filePath).then(res => {    
-	  let imageUrl = pathOfAbsoluteUrl(res.imageUrl);
-	  qiniuUploader.upload(filePath, resolve, reject, {key:imageUrl})
-	})     
-}
-```
-
-### 方式3
-```
-const qiniuUploader = require('./qiniuUploader');
-
-function updateQNConfig() {
-    var options = {
-      region: 'ECN', // 华东区
-      domain: 'your bucker domain name',
-      uploadURL:'https://upload.qiniup.com/',
-      qiniuUploadTokenFunction: function(callBack) {
-	      	getTokenFromServer().then(token => {
-		      	callBack(token)
-	      	})
-      },
-    };
-    qiniuUploader.updateConfigWithOptions(options);
-}
-
-function uploadFile1(filePath) {
-	 updateQNConfig();      
-	 return getQiniuUploadFileName(filePath).then(res => {    
-	  let imageUrl = pathOfAbsoluteUrl(res.imageUrl);
-	  qiniuUploader.upload(filePath, resolve, reject, {key:imageUrl})
-	})     
-}
 ```
