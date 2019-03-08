@@ -59,7 +59,7 @@ function uploadFile2(filePath) {
 }
 ```
 
-#### 方式2
+#### 方式3
 ```
 function uploadFile3(filePath) { 
   var options = {
